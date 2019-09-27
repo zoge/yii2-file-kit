@@ -3,7 +3,7 @@
  * Author: Eugine Terentev <eugine@terentev.net>
  */
 
-namespace trntv\filekit\widget;
+namespace zoge\filekit\widget;
 
 use yii\web\AssetBundle;
 
@@ -16,16 +16,15 @@ class UploadAsset extends AssetBundle
         'trntv\filekit\widget\BlueimpFileuploadAsset'
     ];
 
-    public function init()
-    {
-        $this->sourcePath = __DIR__ . "/assets";
-        $this->css = [
-            YII_DEBUG ? 'css/upload-kit.css' : 'css/upload-kit.min.css'
-        ];
+    public $sourcePath = __DIR__ . '/assets';
+    
+    public $css = [
+        YII_DEBUG ? 'css/upload-kit.css' : 'css/upload-kit.min.css',
+		YII_DEBUG ? 'css/cropper.css' : 'css/cropper.min.css',
+    ];
 
-        $this->js = [
-            YII_DEBUG ? 'js/upload-kit.js' : 'js/upload-kit.min.js'
-        ];
-        parent::init();
-    }
+    public $js = [
+        YII_DEBUG ? 'js/upload-kit.js' : 'js/upload-kit.min.js',
+		YII_DEBUG ? 'js/cropper.js' : 'js/cropper.min.js',
+    ];
 }
