@@ -1,5 +1,5 @@
 <?php
-namespace trntv\filekit\behaviors;
+namespace zoge\filekit\behaviors;
 
 use trntv\filekit\Storage;
 use Yii;
@@ -7,6 +7,7 @@ use yii\base\Behavior;
 use yii\db\ActiveRecord;
 use yii\di\Instance;
 use yii\helpers\ArrayHelper;
+use \Intervention\Image\ImageManagerStatic;
 
 /**
  * Class UploadBehavior
@@ -113,6 +114,7 @@ class UploadBehavior extends Behavior
 
         $singleEvents = [
             ActiveRecord::EVENT_AFTER_FIND => 'afterFindSingle',
+			ActiveRecord::EVENT_AFTER_INSERT => 'afterInsertSingle',
             ActiveRecord::EVENT_AFTER_VALIDATE => 'afterValidateSingle',
             ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeUpdateSingle',
             ActiveRecord::EVENT_AFTER_UPDATE => 'afterUpdateSingle',
@@ -134,7 +136,11 @@ class UploadBehavior extends Behavior
             'type' => $this->typeAttribute,
             'size' => $this->sizeAttribute,
             'name' => $this->nameAttribute,
-            'order' => $this->orderAttribute
+            'order' => $this->orderAttribute,
+			'x' => 'x',
+			'y' => 'y',
+			'w' => 'w',
+			'h' => 'h',
         ];
 
         if ($this->attributePrefix !== null) {
@@ -195,6 +201,7 @@ class UploadBehavior extends Behavior
      */
     public function beforeUpdateSingle()
     {
+
         $this->deletePaths = $this->owner->getOldAttribute($this->getAttributeField('path'));
     }
 
@@ -203,10 +210,20 @@ class UploadBehavior extends Behavior
      */
     public function afterUpdateSingle()
     {
-        $path = $this->owner->getAttribute($this->getAttributeField('path'));
+		$path = $this->owner->getAttribute($this->getAttributeField('path'));
+		$this->crop($path);
         if (!empty($this->deletePaths) && $this->deletePaths !== $path) {
             $this->deleteFiles();
         }
+    }
+
+	/**
+     * @return void
+     */
+    public function afterInsertSingle()
+    {
+		$path = $this->owner->getAttribute($this->getAttributeField('path'));
+		$this->crop($path);
     }
 
     /**
@@ -394,7 +411,13 @@ class UploadBehavior extends Behavior
     protected function enrichFileData($file)
     {
         $fs = $this->getStorage()->getFilesystem();
-        if ($file['path'] && $fs->has($file['path'])) {
+		if ($file['path'] && $fs->has($file['path'])) {
+			Yii::debug('ext:' . (extension_loaded('imagick') ? 'imagick' : 'gd' ));
+//            $manager = new ImageManager(['driver' => extension_loaded('imagick') ? 'imagick' : 'gd']);
+//			$image = $manager->make($fs->read($file['path']));
+//			$image->crop($file['w'], $file['h'], $file['x'], $file['y']);
+//			$fs->put($file['path'], $image);
+//        	Yii::debug('data:'.\yii\helpers\VarDumper::dumpAsString($file) );
             $data = [
                 'type' => $fs->getMimetype($file['path']),
                 'size' => $fs->getSize($file['path']),
@@ -411,4 +434,25 @@ class UploadBehavior extends Behavior
         }
         return $file;
     }
+
+	public function crop($path) {
+		$fs = $this->getStorage()->getFilesystem();
+		if ($path && $fs->has($path)) {
+			$x = $this->owner->getAttribute('x');
+			$y = $this->owner->getAttribute('y');
+			$w = $this->owner->getAttribute('w');
+			$h = $this->owner->getAttribute('h');
+			Yii::debug('afterUpdateSingle');
+			Yii::debug('x: ' . $x);
+			if ($x && $y && $w && $h) {
+				Yii::debug('crop x: ' . $x);
+
+				Yii::debug(\yii\helpers\VarDumper::dumpAsString($path));
+				$img = ImageManagerStatic::make($fs->read($path));
+				$img = $img->crop($w, $h, $x, $y)->resize(1200, 600);
+				$fs->put($path, $img->encode());
+			}
+		}
+	}
+
 }

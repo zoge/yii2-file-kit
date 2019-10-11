@@ -35,7 +35,7 @@ To work with the File Kit you need to configure FileStorage first. This componen
 - Its main task to take on the generation of a unique name for each file and trigger corresponding events.
 ```php
 'fileStorage'=>[
-    'class' => 'trntv\filekit\Storage',
+    'class' => 'zoge\filekit\Storage',
     'baseUrl' => '@web/uploads'
     'filesystem'=> ...
         // OR

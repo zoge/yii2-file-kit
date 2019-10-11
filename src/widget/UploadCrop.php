@@ -1,6 +1,6 @@
 <?php
 /**
- * Author: Eugine Terentev <eugine@terentev.net>
+ * Author: Zoltan Gere
  */
 
 namespace zoge\filekit\widget;
@@ -16,9 +16,9 @@ use yii\widgets\InputWidget;
 
 /**
  * Class Upload
- * @package trntv\filekit\widget
+ * @package zoge\filekit\widget
  */
-class Upload extends InputWidget
+class UploadCrop extends InputWidget
 {
 
     /**
@@ -210,14 +210,9 @@ class Upload extends InputWidget
     <div class="modal-content">
       <div class="modal-body">
         <img id="cropImg"/>
-		$dataX = $("#dataX"),
-					$dataY = $("#dataY"),
-					$dataHeight = $("#dataHeight"),
-					$dataWidth = $("#dataWidth");
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
       </div>
     </div>
   </div>

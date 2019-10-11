@@ -153,36 +153,42 @@
                 methods.checkInputVisibility();
             },
             cropItem: function(e){
-                console.log('crop');
 				console.log('crop' + $(this).closest('li.upload-kit-item'));
-				var src = $(this).closest('li.upload-kit-item').find('img').attr('src');
-				var $image = $('#cropImg');					
+				var src = $(this).closest('li.upload-kit-item').find('img').attr('src'),
+				    $image = $('#cropImg'),
+					data = {};					
                 if (src) {
 					console.log('crop:' + src);
 					$image.attr('src',src);
                 }
-				
-				$('#cropModal').modal('toggle');
+				mxWith = $(document).width()*0.85;
+				console.log('with'+mxWith);
+				mxHeight = Math.round(mxWith*0.5);
 				var $dataX = $("#dataX"),
 					$dataY = $("#dataY"),
 					$dataHeight = $("#dataHeight"),
 					$dataWidth = $("#dataWidth");
-
-				$image.cropper({
-				  aspectRatio: 16 / 9,
-				  data: {
-					x: 480,
-					y: 60,
-					width: 640,
-					height: 360
-				  },
-				  preview: ".img-preview",
-				  done: function(data) {
-					$dataX.val(Math.round(data.x));
+				$('#cropModal').modal('toggle').on('hidden.bs.modal', function () {
+					data = $image.cropper("getData");
+					$image.cropper("destroy");
+					console.log('close:' + data);
+			    	$dataX.val(Math.round(data.x));
 					$dataY.val(Math.round(data.y));
 					$dataHeight.val(Math.round(data.height));
 					$dataWidth.val(Math.round(data.width));
-				  }
+				});
+
+				$image.cropper({
+				  aspectRatio: 2 / 1,
+				  minContainerWidth: mxWith,
+				  minContainerHeight: mxHeight,
+				  data: {
+					x: 60,
+					y: 60,
+					width: 1200,
+					height: 600
+				  },
+				  preview: ".img-preview"
 				});
                 methods.handleEmptyValue();
                 methods.checkInputVisibility();
@@ -197,8 +203,10 @@
                     .append($('<input/>', {"name": name + '[' + options.pathAttributeName + ']', "value": file[options.pathAttribute], "type":"hidden"}))
                     .append($('<input/>', {"name": name + '[name]', "value": file.name, "type":"hidden"}))
                     .append($('<input/>', {"name": name + '[size]', "value": file.size, "type":"hidden"}))
-                    .append($('<input/>', {"name": name + '[width]', "value": file.width, "id":"dataWidth","type":"hidden"}))
-                    .append($('<input/>', {"name": name + '[height]', "value": file.height, "id":"dataHeight", "type":"hidden"}))
+                    .append($('<input/>', {"name": name + '[x]', "value": file.x, "id":"dataX","type":"hidden"}))
+                    .append($('<input/>', {"name": name + '[y]', "value": file.y, "id":"dataY", "type":"hidden"}))
+                    .append($('<input/>', {"name": name + '[w]', "value": file.width, "id":"dataWidth","type":"hidden"}))
+                    .append($('<input/>', {"name": name + '[h]', "value": file.height, "id":"dataHeight", "type":"hidden"}))
                     .append($('<input/>', {"name": name + '[type]', "value": file.type, "type":"hidden"}))
                     .append($('<input/>', {"name": name + '[order]', "value": file.order, "type":"hidden", "data-role": "order"}))
                     .append($('<input/>', {"name": name + '[' + options.baseUrlAttributeName + ']', "value": file[options.baseUrlAttribute], "type":"hidden"}))
